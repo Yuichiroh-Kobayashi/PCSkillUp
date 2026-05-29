@@ -12,7 +12,7 @@ const MODE_INSTRUCTIONS = {
     "ドラッグすると、続けてぬれます。"
   ],
   [MODE_ADVANCED]: [
-    "上級モードでは、32×32マスで『白色・薄灰色・濃灰色・黒色』を見本に合わせます。",
+    "上級モードでは、32×32マスで『白色・銀色・灰色・黒色』を見本に合わせます。",
     "パレットで色を選んでから、マスをクリックまたはドラッグしてぬります。",
     "色を変えるときは、先にパレットで色を選びます。"
   ]
@@ -58,8 +58,12 @@ function getGridSize() {
 }
 
 function getHexLabels() {
+  return Array.from({ length: getGridSize() }, (_, i) => formatAxisLabel(i));
+}
+
+function formatAxisLabel(index) {
   const digits = colorMode === MODE_ADVANCED ? 2 : 1;
-  return Array.from({ length: getGridSize() }, (_, i) => i.toString(16).toUpperCase().padStart(digits, "0"));
+  return index.toString(16).toUpperCase().padStart(digits, "0");
 }
 
 function createEmptyGrid() {
@@ -149,10 +153,9 @@ function createCell(value, editable, showHint, r, c, labels) {
 function updateEditorCell(r, c) {
   const cellEl = editorCellElements[r]?.[c];
   if (!cellEl) return;
-  const labels = getHexLabels();
   const showHint = shouldShowHint(r, c);
   cellEl.className = getCellClassName(grid[r][c], showHint);
-  cellEl.setAttribute("aria-label", `${labels[c]},${labels[r]}`);
+  cellEl.setAttribute("aria-label", `${formatAxisLabel(c)},${formatAxisLabel(r)}`);
   cellEl.textContent = showHint ? "1" : "";
 }
 
@@ -253,19 +256,29 @@ function resetForNewGrid() {
 
 function downloadBitmap() {
   downloadBtnEl.disabled = true;
-  const isAdvanced = colorMode === MODE_ADVANCED;
-  const bitCount = isAdvanced ? 4 : 1;
-  const blob = new Blob([createBitmapBytes(grid, { width: getGridSize(), bitCount })], { type: "image/bmp" });
-  const link = document.createElement("a");
-  const modeName = isAdvanced ? "上級" : "練習";
-  link.href = URL.createObjectURL(blob);
-  link.download = `ドット絵_${PATTERNS[patternIndex].name}_${modeName}.bmp`;
-  link.click();
-  downloadStatusEl.textContent = DOWNLOAD_MESSAGE;
-  setTimeout(() => {
-    URL.revokeObjectURL(link.href);
-    downloadBtnEl.disabled = false;
-  }, DOWNLOAD_LOCK_MS);
+  let objectUrl = "";
+
+  try {
+    const isAdvanced = colorMode === MODE_ADVANCED;
+    const bitCount = isAdvanced ? 4 : 1;
+    const blob = new Blob([createBitmapBytes(grid, { width: getGridSize(), bitCount })], { type: "image/bmp" });
+    const link = document.createElement("a");
+    const modeName = isAdvanced ? "上級" : "練習";
+
+    objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
+    link.download = `ドット絵_${PATTERNS[patternIndex].name}_${modeName}.bmp`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    downloadStatusEl.textContent = DOWNLOAD_MESSAGE;
+  } finally {
+    setTimeout(() => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      downloadBtnEl.disabled = false;
+    }, DOWNLOAD_LOCK_MS);
+  }
 }
 
 function gridsMatch(a, b) {

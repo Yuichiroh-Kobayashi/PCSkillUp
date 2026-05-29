@@ -33,9 +33,9 @@ h2 { font-size: 1.4rem; }
 .cell.shade-2 { background: var(--color-dark-gray); color: var(--color-white); }
 .cell.shade-3 { background: var(--color-black); color: var(--color-white); }
 .cell.hint { color: var(--color-hint); }
-.palette { display: flex; flex-wrap: wrap; gap: 8px; }
+.palette { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 454px; max-width: 100%; }
 .palette[hidden] { display: none; }
-.swatch { min-width: 0; padding: 10px 12px; border: 2px solid var(--color-grid-line); }
+.swatch { min-width: 0; padding: 10px 8px; border: 2px solid var(--color-grid-line); }
 .swatch.selected { outline: 4px solid var(--color-focus); outline-offset: 2px; }
 .swatch.shade-0 { background: var(--color-white); color: var(--color-text); }
 .swatch.shade-1 { background: var(--color-light-gray); color: var(--color-text); }
