@@ -5,10 +5,31 @@ h1 { font-size: 2rem; }
 h2 { font-size: 1.4rem; }
 .lead, li, p, label, button, textarea { font-size: 1.1rem; }
 .grids { display: flex; flex-wrap: wrap; gap: 24px; }
-.grid { display: grid; grid-template-columns: repeat(16, 24px); gap: 2px; background: #333; padding: 4px; user-select: none; }
-.cell { width: 24px; height: 24px; border: 1px solid #aaa; background: #fff; color: #111; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-.cell.black { background: #111; color: #fff; }
+.grid { display: grid; gap: 2px; background: #333; padding: 4px; user-select: none; }
+.practice-grid { grid-template-columns: 13px repeat(16, 26px); }
+.advanced-grid { grid-template-columns: repeat(33, 13px); gap: 1px; }
+.axis-label { width: 100%; min-height: 13px; color: #fff; display: flex; align-self: stretch; align-items: center; justify-content: center; font-size: 0.55rem; line-height: 1; font-weight: bold; text-align: center; }
+.practice-grid .axis-label { font-size: 0.75rem; }
+.practice-grid .cell { margin-left: 0; }
+.cell { width: 26px; height: 26px; border: 1px solid #aaa; color: #111; display: flex; align-items: center; justify-content: center; font-weight: bold; box-sizing: border-box; }
+.advanced-grid .cell { width: 13px; height: 13px; border-width: 1px; font-size: 0; }
+.cell.shade-0 { background: #fff; color: #111; }
+.cell.shade-1 { background: #cfcfcf; color: #111; }
+.cell.shade-2 { background: #707070; color: #fff; }
+.cell.shade-3 { background: #111; color: #fff; }
 .cell.hint { color: #cc0000; }
+.palette { display: flex; flex-wrap: wrap; gap: 8px; }
+.palette[hidden] { display: none; }
+.swatch { min-width: 96px; padding: 10px 12px; border: 2px solid #333; }
+.swatch.selected { outline: 4px solid #006bd6; outline-offset: 2px; }
+.swatch.shade-0 { background: #fff; color: #111; }
+.swatch.shade-1 { background: #cfcfcf; color: #111; }
+.swatch.shade-2 { background: #707070; color: #fff; }
+.swatch.shade-3 { background: #111; color: #fff; }
+.swatch.shade-0:hover { background: #fff; }
+.swatch.shade-1:hover { background: #cfcfcf; }
+.swatch.shade-2:hover { background: #707070; }
+.swatch.shade-3:hover { background: #111; }
 .buttons { margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; }
 button { padding: 12px 18px; font-weight: bold; border: 2px solid #111; background: #fff; cursor: pointer; }
 button:hover { background: #efefef; }

@@ -9,17 +9,17 @@
 <body>
   <main class="container">
     <h1>ドット絵PC操作ミッション</h1>
-    <p class="lead">1の場所をクリックして、白黒のドット絵を完成させよう。</p>
+    <p class="lead">見本をよく見て、ドット絵を完成させよう。</p>
 
     <section>
       <h2>ルール</h2>
       <ul>
-        <li>作業グリッドの「1」がある場所を黒くぬろう。</li>
-        <li>白いマスをクリックすると黒になります。</li>
-        <li>黒いマスをクリックすると白に戻ります。</li>
+        <li>練習モードでは、16×16マスで「1」がある場所を黒くぬろう。</li>
+        <li>上級モードでは、32×32マスで「白色・薄灰色・濃灰色・黒色」を合わせよう。</li>
+        <li>色をまちがえたら、同じマスをもう一度クリックして変えられます。</li>
         <li>ドラッグすると、続けてぬれます。</li>
       </ul>
-      <p>1の場所を黒くぬると、白黒のドット絵になります。黒と白の組み合わせで、絵を表せます。</p>
+      <p>少ない色でも、組み合わせると絵を表せます。</p>
     </section>
 
     <section class="grids">
@@ -28,23 +28,30 @@
         <div id="targetGrid" class="grid" aria-label="見本のドット絵"></div>
       </div>
       <div>
-        <h2>作業グリッド（1の場所をぬろう）</h2>
+        <h2>作業グリッド（見本に合わせよう）</h2>
         <div id="editGrid" class="grid" aria-label="作業用ドット絵" role="grid"></div>
       </div>
     </section>
 
     <section class="buttons">
+      <button id="modeBtn" type="button">上級モードにする</button>
       <button id="clearBtn" type="button">全部消す</button>
-      <button id="undoBtn" type="button">1つ戻す</button>
       <button id="nextBtn" type="button">見本を変える</button>
+      <button id="downloadBtn" type="button">BMP保存</button>
+      <div id="palette" class="palette" hidden aria-label="カラーパレット">
+        <button class="swatch shade-0 selected" type="button" data-color="0" aria-pressed="true">白色</button>
+        <button class="swatch shade-1" type="button" data-color="1" aria-pressed="false">薄灰色</button>
+        <button class="swatch shade-2" type="button" data-color="2" aria-pressed="false">濃灰色</button>
+        <button class="swatch shade-3" type="button" data-color="3" aria-pressed="false">黒色</button>
+      </div>
     </section>
 
     <section>
       <h2>コピー＆貼り付け練習</h2>
-      <p>下の文をドラッグで選んで、Ctrl+C でコピーしよう。</p>
+      <p>下の文をドラッグして選び、Ctrl+C でコピーしよう。</p>
       <label for="copySource">コピーする文</label>
       <textarea id="copySource" rows="2" readonly>ドット絵を完成させました</textarea>
-      <p>コピーした文を下の箱に Ctrl+V で貼り付けよう。</p>
+      <p>コピーした文を下のテキストボックスに Ctrl+V で貼り付けよう。</p>
       <label for="pasteArea">貼り付け欄</label>
       <textarea id="pasteArea" rows="3"></textarea>
       <p id="pasteStatus" class="status" aria-live="polite"></p>
