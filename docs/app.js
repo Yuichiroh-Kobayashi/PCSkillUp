@@ -1,4 +1,5 @@
 const SIZE = 16;
+const COPY_TEXT = "ドット絵を完成させました";
 const patterns = [
   { name: "ハート", data: [
     "0000000000000000","0000110000110000","0001111001111000","0011111111111100",
@@ -19,6 +20,7 @@ const patterns = [
     "0000001100000000","0000000000000000","0000000000000000","0000000000000000"
   ]}
 ];
+
 let patternIndex = 0;
 let grid = createEmpty();
 let history = [];
@@ -28,22 +30,20 @@ let dragPaintValue = 1;
 const targetGridEl = document.getElementById("targetGrid");
 const editGridEl = document.getElementById("editGrid");
 const patternNameEl = document.getElementById("patternName");
-const binaryDataEl = document.getElementById("binaryData");
 const pasteAreaEl = document.getElementById("pasteArea");
 const pasteStatusEl = document.getElementById("pasteStatus");
 const missionStatusEl = document.getElementById("missionStatus");
-const copyMessageEl = document.getElementById("copyMessage");
+const copySourceEl = document.getElementById("copySource");
 
+copySourceEl.value = COPY_TEXT;
 document.getElementById("clearBtn").addEventListener("click", clearAll);
 document.getElementById("undoBtn").addEventListener("click", undo);
 document.getElementById("nextBtn").addEventListener("click", nextPattern);
-document.getElementById("copyBtn").addEventListener("click", copyData);
 pasteAreaEl.addEventListener("input", updateStatuses);
 document.addEventListener("mouseup", () => { isDragging = false; });
 
 renderTarget();
 renderEditor();
-updateBinaryText();
 updateStatuses();
 
 function createEmpty() { return Array.from({ length: SIZE }, () => Array(SIZE).fill(0)); }
@@ -54,13 +54,16 @@ function renderTarget() {
   targetGridEl.innerHTML = "";
   patternNameEl.textContent = patterns[patternIndex].name;
   const target = getTarget();
-  target.forEach((row) => row.forEach((v) => targetGridEl.appendChild(cell(v))));
+  target.forEach((row) => row.forEach((v) => targetGridEl.appendChild(cell(v, false, false))));
 }
+
 function renderEditor() {
   editGridEl.innerHTML = "";
+  const target = getTarget();
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
-      const d = cell(grid[r][c]);
+      const showHint = target[r][c] === 1 && grid[r][c] === 0;
+      const d = cell(grid[r][c], true, showHint);
       d.dataset.r = String(r);
       d.dataset.c = String(c);
       d.addEventListener("mousedown", onDown);
@@ -69,11 +72,14 @@ function renderEditor() {
     }
   }
 }
-function cell(v) {
+
+function cell(value, editable, showHint) {
   const d = document.createElement("div");
-  d.className = `cell${v ? " black" : ""}`;
+  d.className = `cell${value ? " black" : ""}${showHint ? " hint" : ""}`;
+  if (editable && showHint) d.textContent = "1";
   return d;
 }
+
 function onDown(e) {
   const r = Number(e.target.dataset.r);
   const c = Number(e.target.dataset.c);
@@ -82,90 +88,83 @@ function onDown(e) {
   setCell(r, c, dragPaintValue);
   isDragging = true;
 }
+
 function onEnter(e) {
   if (!isDragging) return;
   const r = Number(e.target.dataset.r);
   const c = Number(e.target.dataset.c);
   setCell(r, c, dragPaintValue);
 }
+
 function setCell(r, c, value) {
   if (grid[r][c] === value) return;
   grid[r][c] = value;
   renderEditor();
-  updateBinaryText();
   updateStatuses();
 }
+
 function pushHistory() {
   history.push(cloneGrid(grid));
   if (history.length > 100) history.shift();
 }
+
 function undo() {
   if (!history.length) return;
   grid = history.pop();
   renderEditor();
-  updateBinaryText();
   updateStatuses();
 }
+
 function clearAll() {
   pushHistory();
   grid = createEmpty();
   pasteAreaEl.value = "";
-  copyMessageEl.textContent = "";
+  pasteStatusEl.textContent = "";
+  missionStatusEl.textContent = "";
   renderEditor();
-  updateBinaryText();
   updateStatuses();
 }
+
 function nextPattern() {
   patternIndex = (patternIndex + 1) % patterns.length;
   history = [];
   grid = createEmpty();
   pasteAreaEl.value = "";
-  copyMessageEl.textContent = "";
+  pasteStatusEl.textContent = "";
+  missionStatusEl.textContent = "";
   renderTarget();
   renderEditor();
-  updateBinaryText();
   updateStatuses();
 }
-function toBinaryString(src) {
-  return src.map((row) => row.join("")).join("\n");
+
+function gridsMatch(a, b) {
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      if (a[r][c] !== b[r][c]) return false;
+    }
+  }
+  return true;
 }
+
 function normalize(text) {
   return text.replace(/\r/g, "").trim();
 }
-function updateBinaryText() {
-  binaryDataEl.value = toBinaryString(grid);
-}
-async function copyData() {
-  const text = binaryDataEl.value;
-  copyMessageEl.textContent = "";
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    try {
-      await navigator.clipboard.writeText(text);
-      copyMessageEl.textContent = "コピーしました。下の箱に Ctrl+V で貼り付けよう。";
-      return;
-    } catch (_) {}
-  }
-  binaryDataEl.focus();
-  binaryDataEl.select();
-  copyMessageEl.textContent = "Ctrl+C を押してコピーしてください。";
-}
+
 function updateStatuses() {
-  const gridText = normalize(binaryDataEl.value);
-  const pasted = normalize(pasteAreaEl.value);
-  const targetMatch = toBinaryString(grid) === toBinaryString(getTarget());
-  const pasteMatch = pasted !== "" && pasted === gridText;
+  const targetMatch = gridsMatch(grid, getTarget());
+  const pasteMatch = normalize(pasteAreaEl.value) === COPY_TEXT;
 
   pasteStatusEl.textContent = pasteMatch
-    ? "貼り付けデータOK：作業グリッドと一致しています。"
-    : "貼り付けデータ未一致：コピーして Ctrl+V で貼り付けを確認しよう。";
+    ? "貼り付け成功：指定された文と一致しています。"
+    : "貼り付け未完了：指定された文を Ctrl+V で貼り付けよう。";
 
   if (targetMatch && pasteMatch) {
-    missionStatusEl.textContent = "ミッション完了！見本どおりに作成でき、0/1データの貼り付けも成功しました。";
-  } else if (!targetMatch && pasteMatch) {
-    missionStatusEl.textContent = "貼り付けは成功です。次は見本どおりのドット絵を完成させよう。";
+    missionStatusEl.textContent = "ミッション完了！1の場所をぬってドット絵を完成させ、Ctrl+C / Ctrl+V もできました。";
   } else if (targetMatch && !pasteMatch) {
-    missionStatusEl.textContent = "見本は完成です。次は0/1データをコピーして Ctrl+V で貼り付けよう。";
+    missionStatusEl.textContent = "ドット絵は完成です。次は文を選んで Ctrl+C、下の箱に Ctrl+V で貼り付けよう。";
+  } else if (!targetMatch && pasteMatch) {
+    missionStatusEl.textContent = "コピー＆貼り付けは成功です。次は1の場所を黒くぬってドット絵を完成させよう。";
   } else {
-    missionStatusEl.textContent = "見本を見ながらドット絵を作り、完成したらコピー＆貼り付けをしよう。";
+    missionStatusEl.textContent = "1の場所を黒くぬり、文を Ctrl+C / Ctrl+V で貼り付けよう。";
   }
 }
