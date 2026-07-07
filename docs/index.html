@@ -11,8 +11,11 @@
     <h1>ドット絵データクエスト</h1>
     <p class="lead">クリック・ドラッグ・コピー＆ペーストで、ドット絵をデータにしよう！</p>
 
-    <section id="modeInstructions">
-      <h2>ルール</h2>
+    <section id="modeInstructions" class="stage-panel">
+      <p class="stage-kicker">現在のステージ</p>
+      <h2 id="stageName"></h2>
+      <p id="stageDescription" class="stage-description"></p>
+      <h3>ルール</h3>
       <ul id="instructionList"></ul>
       <p>少ない色でも、組み合わせると絵を表せます。</p>
     </section>
@@ -29,9 +32,9 @@
     </section>
 
     <section class="buttons">
-      <button id="modeBtn" type="button">上級モードにする</button>
+      <button id="modeBtn" type="button">ステージ2へ進む</button>
       <button id="clearBtn" type="button">全部消す</button>
-      <button id="nextBtn" type="button">見本を変える</button>
+      <button id="nextBtn" type="button">表示を変える</button>
       <button id="downloadBtn" type="button">今の絵をBMP保存</button>
       <div id="palette" class="palette" hidden aria-label="カラーパレット">
         <button class="swatch shade-0 selected" type="button" data-color="0" aria-pressed="true">白色</button>
