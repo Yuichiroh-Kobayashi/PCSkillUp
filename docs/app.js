@@ -303,6 +303,7 @@ function getRandomStagePatternIndex() {
 function getDifferentStagePatternIndex(previousPatternIndex) {
   const candidates = Array.from({ length: STAGE_PATTERN_COUNT }, (_, index) => index)
     .filter((index) => index !== previousPatternIndex);
+  if (candidates.length === 0) return previousPatternIndex;
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
