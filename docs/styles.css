@@ -31,7 +31,7 @@ h3 { font-size: 1.2rem; }
 .practice-grid .axis-label { font-size: 0.75rem; }
 .practice-grid .cell { margin-left: 0; }
 .cell { width: 26px; height: 26px; border: 1px solid var(--color-grid-line); color: var(--color-text); display: flex; align-items: center; justify-content: center; font-weight: bold; box-sizing: border-box; }
-.advanced-grid .cell { width: 13px; height: 13px; border-width: 1px; font-size: 0; }
+.advanced-grid .cell { width: 13px; height: 13px; border: 0; font-size: 0; }
 .cell.shade-0 { background: var(--color-white); color: var(--color-text); }
 .cell.shade-1 { background: var(--color-light-gray); color: var(--color-text); }
 .cell.shade-2 { background: var(--color-dark-gray); color: var(--color-white); }

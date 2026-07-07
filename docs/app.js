@@ -49,6 +49,10 @@ const downloadStatusEl = document.getElementById("downloadStatus");
 const copySourceEl = document.getElementById("copySource");
 const modeBtnEl = document.getElementById("modeBtn");
 const downloadBtnEl = document.getElementById("downloadBtn");
+const exerciseTitleEl = document.getElementById("exerciseTitle");
+const exerciseDescriptionEl = document.getElementById("exerciseDescription");
+const copyPracticeControlsEl = document.getElementById("copyPracticeControls");
+const screenshotNoticeEl = document.getElementById("screenshotNotice");
 const paletteEl = document.getElementById("palette");
 const swatchEls = Array.from(document.querySelectorAll(".swatch"));
 
@@ -93,6 +97,7 @@ function renderAll() {
   renderTargetGrid();
   renderEditorGrid();
   renderPalette();
+  renderExercise();
   updateStatuses();
 }
 
@@ -110,7 +115,7 @@ function renderInstructions() {
 function renderTargetGrid() {
   targetGridEl.innerHTML = "";
   targetGridEl.className = `grid ${getGridClass()}`;
-  patternNameEl.textContent = `${PATTERNS[patternIndex].name}・${STAGES[colorMode].name}`;
+  patternNameEl.textContent = PATTERNS[patternIndex].name;
 
   targetGrid = createTargetGrid();
   const labels = getHexLabels();
@@ -238,6 +243,17 @@ function renderPalette() {
     swatch.classList.toggle("selected", isSelected);
     swatch.setAttribute("aria-pressed", String(isSelected));
   });
+}
+
+function renderExercise() {
+  const isAdvanced = colorMode === MODE_ADVANCED;
+  exerciseTitleEl.textContent = isAdvanced ? "スクリーンショット練習" : "コピー＆貼り付け練習";
+  exerciseDescriptionEl.textContent = isAdvanced
+    ? "作品を作ったら、Win + Shift + S でスクリーンショットを撮り、ロイロノートに Ctrl + V で貼り付けよう。"
+    : "下の文をドラッグして選び、Ctrl+C でコピーしよう。";
+  copyPracticeControlsEl.hidden = isAdvanced;
+  screenshotNoticeEl.hidden = !isAdvanced;
+  pasteStatusEl.hidden = isAdvanced;
 }
 
 function toggleMode() {
