@@ -1,24 +1,33 @@
 const COPY_TEXT = "ドット絵を完成させました";
 const DOWNLOAD_MESSAGE = "BMPを保存しました。ダウンロードフォルダを確認してください。";
 const DOWNLOAD_LOCK_MS = 1800;
+const STAGE_PATTERN_COUNT = 3;
 const COLOR_COUNT = {
   [MODE_PRACTICE]: 2,
   [MODE_ADVANCED]: 4
 };
-const MODE_INSTRUCTIONS = {
-  [MODE_PRACTICE]: [
-    "練習モードでは、16×16マスで『1』がある場所を黒くぬります。",
-    "同じマスをもう一度クリックすると、白に戻せます。",
-    "ドラッグすると、続けてぬれます。"
-  ],
-  [MODE_ADVANCED]: [
-    "上級モードでは、32×32マスで『白色・銀色・灰色・黒色』を見本に合わせます。",
-    "パレットで色を選んでから、マスをクリックまたはドラッグしてぬります。",
-    "色を変えるときは、先にパレットで色を選びます。"
-  ]
+const STAGES = {
+  [MODE_PRACTICE]: {
+    name: "ステージ1：ビットゲート",
+    description: "1の場所を黒くぬり、Ctrl+C / Ctrl+V をクリアしよう。",
+    instructions: [
+      "16×16マスで『1』がある場所を黒くぬります。",
+      "同じマスをもう一度クリックすると、白に戻せます。",
+      "ドラッグすると、続けてぬれます。"
+    ]
+  },
+  [MODE_ADVANCED]: {
+    name: "ステージ2：ピクセルキャプチャー",
+    description: "4色ドット絵を完成させ、スクリーンショットをロイロに提出しよう。",
+    instructions: [
+      "32×32マスで『白色・銀色・灰色・黒色』を使ってドット絵を作ります。",
+      "パレットで色を選んでから、マスをクリックまたはドラッグしてぬります。",
+      "完成したらスクリーンショットで提出する練習につなげます。"
+    ]
+  }
 };
 
-let patternIndex = 0;
+let patternIndex = getRandomStagePatternIndex();
 let colorMode = MODE_PRACTICE;
 let grid = createEmptyGrid();
 let targetGrid = createTargetGrid();
@@ -30,6 +39,8 @@ let selectedColor = 3;
 const targetGridEl = document.getElementById("targetGrid");
 const editGridEl = document.getElementById("editGrid");
 const patternNameEl = document.getElementById("patternName");
+const stageNameEl = document.getElementById("stageName");
+const stageDescriptionEl = document.getElementById("stageDescription");
 const instructionListEl = document.getElementById("instructionList");
 const pasteAreaEl = document.getElementById("pasteArea");
 const pasteStatusEl = document.getElementById("pasteStatus");
@@ -38,6 +49,10 @@ const downloadStatusEl = document.getElementById("downloadStatus");
 const copySourceEl = document.getElementById("copySource");
 const modeBtnEl = document.getElementById("modeBtn");
 const downloadBtnEl = document.getElementById("downloadBtn");
+const exerciseTitleEl = document.getElementById("exerciseTitle");
+const exerciseDescriptionEl = document.getElementById("exerciseDescription");
+const copyPracticeControlsEl = document.getElementById("copyPracticeControls");
+const screenshotNoticeEl = document.getElementById("screenshotNotice");
 const paletteEl = document.getElementById("palette");
 const swatchEls = Array.from(document.querySelectorAll(".swatch"));
 
@@ -51,6 +66,7 @@ pasteAreaEl.addEventListener("input", updateStatuses);
 document.addEventListener("pointerup", endDrag);
 document.addEventListener("pointercancel", endDrag);
 
+updateStageControls();
 renderAll();
 
 function getGridSize() {
@@ -81,12 +97,15 @@ function renderAll() {
   renderTargetGrid();
   renderEditorGrid();
   renderPalette();
+  renderExercise();
   updateStatuses();
 }
 
 function renderInstructions() {
+  stageNameEl.textContent = STAGES[colorMode].name;
+  stageDescriptionEl.textContent = STAGES[colorMode].description;
   instructionListEl.innerHTML = "";
-  MODE_INSTRUCTIONS[colorMode].forEach((text) => {
+  STAGES[colorMode].instructions.forEach((text) => {
     const item = document.createElement("li");
     item.textContent = text;
     instructionListEl.appendChild(item);
@@ -96,7 +115,7 @@ function renderInstructions() {
 function renderTargetGrid() {
   targetGridEl.innerHTML = "";
   targetGridEl.className = `grid ${getGridClass()}`;
-  patternNameEl.textContent = `${PATTERNS[patternIndex].name}・${getModeLabel()}`;
+  patternNameEl.textContent = PATTERNS[patternIndex].name;
 
   targetGrid = createTargetGrid();
   const labels = getHexLabels();
@@ -173,10 +192,6 @@ function getGridClass() {
   return colorMode === MODE_ADVANCED ? "advanced-grid" : "practice-grid";
 }
 
-function getModeLabel() {
-  return colorMode === MODE_ADVANCED ? "上級モード" : "練習モード";
-}
-
 function onPointerDown(e) {
   if (e.button !== 0) return;
   e.preventDefault();
@@ -230,20 +245,41 @@ function renderPalette() {
   });
 }
 
+function renderExercise() {
+  const isAdvanced = colorMode === MODE_ADVANCED;
+  exerciseTitleEl.textContent = isAdvanced ? "スクリーンショット練習" : "コピー＆貼り付け練習";
+  exerciseDescriptionEl.textContent = isAdvanced
+    ? "作品を作ったら、Win + Shift + S でスクリーンショットを撮り、ロイロノートに Ctrl + V で貼り付けよう。"
+    : "下の文をドラッグして選び、Ctrl+C でコピーしよう。";
+  copyPracticeControlsEl.hidden = isAdvanced;
+  screenshotNoticeEl.hidden = !isAdvanced;
+  pasteStatusEl.hidden = isAdvanced;
+}
+
 function toggleMode() {
   colorMode = colorMode === MODE_PRACTICE ? MODE_ADVANCED : MODE_PRACTICE;
+  patternIndex = getRandomStagePatternIndex();
   selectedColor = 3;
   resetForNewGrid();
-  modeBtnEl.textContent = colorMode === MODE_ADVANCED ? "練習モードにする" : "上級モードにする";
+  updateStageControls();
   renderAll();
 }
 
 function nextPattern() {
-  patternIndex = (patternIndex + 1) % PATTERNS.length;
+  patternIndex = (patternIndex + 1) % STAGE_PATTERN_COUNT;
   resetForNewGrid();
   renderTargetGrid();
   renderEditorGrid();
   updateStatuses();
+}
+
+function getRandomStagePatternIndex() {
+  return Math.floor(Math.random() * STAGE_PATTERN_COUNT);
+}
+
+function updateStageControls() {
+  modeBtnEl.textContent = colorMode === MODE_ADVANCED ? "ステージ1に戻る" : "ステージ2へ進む";
+  downloadBtnEl.hidden = true;
 }
 
 function resetForNewGrid() {
@@ -295,7 +331,7 @@ function normalize(text) {
 }
 
 function updateStatuses() {
-  const targetMatch = gridsMatch(grid, targetGrid);
+  const targetMatch = colorMode === MODE_PRACTICE && gridsMatch(grid, targetGrid);
   const pasteMatch = normalize(pasteAreaEl.value) === COPY_TEXT;
 
   pasteStatusEl.textContent = pasteMatch
@@ -307,10 +343,12 @@ function updateStatuses() {
   } else if (targetMatch) {
     missionStatusEl.textContent = "ドット絵は完成です。次は文を選んで Ctrl+C、下の箱に Ctrl+V で貼り付けよう。";
   } else if (pasteMatch) {
-    missionStatusEl.textContent = "コピー＆貼り付けは成功です。次は見本に合わせてドット絵を完成させよう。";
+    missionStatusEl.textContent = colorMode === MODE_ADVANCED
+      ? "コピー＆貼り付けは成功です。4色ドット絵を完成させたらスクリーンショット提出の練習に進もう。"
+      : "コピー＆貼り付けは成功です。次は見本に合わせてドット絵を完成させよう。";
   } else {
     missionStatusEl.textContent = colorMode === MODE_ADVANCED
-      ? "パレットで色を選び、見本と同じ上級モードの色にぬり、文を Ctrl+C / Ctrl+V で貼り付けよう。"
+      ? "パレットで4色を選び、ドット絵を完成させたらスクリーンショット提出の練習に進もう。"
       : "1の場所を黒くぬり、文を Ctrl+C / Ctrl+V で貼り付けよう。";
   }
 }
