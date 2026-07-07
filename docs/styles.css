@@ -76,6 +76,10 @@ textarea { width: 100%; max-width: 560px; border: 2px solid var(--color-grid-lin
   gap: 12px 24px;
   align-items: start;
 }
+#copyPracticeControls[hidden],
+#screenshotNotice[hidden] {
+  display: none;
+}
 .practice-field {
   width: 100%;
   max-width: 468px;

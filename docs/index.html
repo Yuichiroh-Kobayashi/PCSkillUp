@@ -51,7 +51,7 @@
       <div id="copyPracticeControls">
         <div class="shortcut-guide">
           <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>C</kbd></div>
-          <p>下の文をドラッグして選び、Ctrl + C でコピーしよう</p>
+          <p>コピーする文をドラッグし、Ctrl + C でコピーしよう</p>
         </div>
         <div class="practice-field">
           <label for="copySource">コピーする文</label>
@@ -78,25 +78,25 @@
       </div>
       <p id="pasteStatus" class="status" aria-live="polite"></p>
       <p id="missionStatus" class="status strong" aria-live="polite"></p>
-      <div id="clearEffect" class="clear-overlay" hidden role="dialog" aria-labelledby="clearTitle">
-        <div class="clear-card">
-          <div class="clear-badge">CLEAR!</div>
-          <p id="clearTitle" class="clear-title">ミッション完了！</p>
-          <p>ドット絵を完成させ、コピー＆ペーストもできました。</p>
-          <div id="clearActions" class="clear-actions" hidden>
-            <button id="retryBtn" type="button">再チャレンジ</button>
-            <button id="stage2Btn" type="button">ステージ2へ</button>
-          </div>
-        </div>
-        <span class="confetti c1"></span>
-        <span class="confetti c2"></span>
-        <span class="confetti c3"></span>
-        <span class="confetti c4"></span>
-        <span class="confetti c5"></span>
-        <span class="confetti c6"></span>
-      </div>
     </section>
   </main>
+  <div id="clearEffect" class="clear-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+    <div class="clear-card">
+      <div class="clear-badge">CLEAR!</div>
+      <p id="clearTitle" class="clear-title">ミッション完了！</p>
+      <p>ドット絵を完成させ、コピー＆ペーストもできました。</p>
+      <div id="clearActions" class="clear-actions" hidden>
+        <button id="retryBtn" type="button">再チャレンジ</button>
+        <button id="stage2Btn" type="button">ステージ2へ</button>
+      </div>
+    </div>
+    <span class="confetti c1"></span>
+    <span class="confetti c2"></span>
+    <span class="confetti c3"></span>
+    <span class="confetti c4"></span>
+    <span class="confetti c5"></span>
+    <span class="confetti c6"></span>
+  </div>
   <script src="patterns.js"></script>
   <script src="bmp.js"></script>
   <script src="app.js"></script>

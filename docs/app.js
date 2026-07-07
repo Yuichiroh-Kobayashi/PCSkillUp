@@ -38,6 +38,7 @@ let selectedColor = 3;
 let isStageOneCleared = false;
 
 const targetGridEl = document.getElementById("targetGrid");
+const mainEl = document.querySelector("main");
 const editGridEl = document.getElementById("editGrid");
 const patternNameEl = document.getElementById("patternName");
 const stageNameEl = document.getElementById("stageName");
@@ -320,6 +321,7 @@ function updateClearActions() {
 
 function showStageOneClearEffect() {
   clearEffectEl.hidden = false;
+  if (mainEl) mainEl.inert = true;
   clearEffectEl.classList.remove("play");
   void clearEffectEl.offsetWidth;
   clearEffectEl.classList.add("play");
@@ -327,6 +329,7 @@ function showStageOneClearEffect() {
 
 function resetStageOneClearEffect() {
   clearEffectEl.hidden = true;
+  if (mainEl) mainEl.inert = false;
   clearEffectEl.classList.remove("play");
 }
 
@@ -382,6 +385,7 @@ function normalize(text) {
 }
 
 function setStatus(el, text, tone = "") {
+  if (!el) return;
   el.textContent = text;
   el.classList.remove("is-success", "is-warning");
   if (tone) el.classList.add(tone);
