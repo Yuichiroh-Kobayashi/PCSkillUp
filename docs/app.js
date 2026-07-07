@@ -9,7 +9,7 @@ const COLOR_COUNT = {
 const STAGES = {
   [MODE_PRACTICE]: {
     name: "ステージ1：ビットゲート",
-    description: "1の場所を黒くぬり、Ctrl+C / Ctrl+V をクリアしよう。",
+    description: "1の場所を黒くぬり、指定された文をコピー＆ペーストしよう！",
     instructions: [
       "16×16マスで『1』がある場所を黒くぬります。",
       "同じマスをもう一度クリックすると、白に戻せます。",
@@ -18,11 +18,11 @@ const STAGES = {
   },
   [MODE_ADVANCED]: {
     name: "ステージ2：ピクセルキャプチャー",
-    description: "4色ドット絵を完成させ、スクリーンショットをロイロに提出しよう。",
+    description: "4色ドット絵を作り、スクリーンショットを提出しよう！",
     instructions: [
       "32×32マスで『白色・銀色・灰色・黒色』を使ってドット絵を作ります。",
       "パレットで色を選んでから、マスをクリックまたはドラッグしてぬります。",
-      "完成したらスクリーンショットで提出する練習につなげます。"
+      "完成したらスクリーンショットを提出する練習をしよう。"
     ]
   }
 };
@@ -38,6 +38,7 @@ let selectedColor = 3;
 let isStageOneCleared = false;
 
 const targetGridEl = document.getElementById("targetGrid");
+const mainEl = document.querySelector("main");
 const editGridEl = document.getElementById("editGrid");
 const patternNameEl = document.getElementById("patternName");
 const stageNameEl = document.getElementById("stageName");
@@ -250,10 +251,10 @@ function renderPalette() {
 
 function renderExercise() {
   const isAdvanced = colorMode === MODE_ADVANCED;
-  exerciseTitleEl.textContent = isAdvanced ? "スクリーンショット練習" : "コピー＆貼り付け練習";
+  exerciseTitleEl.textContent = isAdvanced ? "スクリーンショット練習" : "コピー＆ペースト練習";
   exerciseDescriptionEl.textContent = isAdvanced
-    ? "作品を作ったら、Win + Shift + S でスクリーンショットを撮り、ロイロノートに Ctrl + V で貼り付けよう。"
-    : "下の文をドラッグして選び、Ctrl+C でコピーしよう。";
+    ? "作品を作ったら、Win + Shift + S でスクリーンショットを撮り、先生が指示するアプリに Ctrl + V でペーストしよう。"
+    : "";
   copyPracticeControlsEl.hidden = isAdvanced;
   screenshotNoticeEl.hidden = !isAdvanced;
   pasteStatusEl.hidden = isAdvanced;
@@ -320,6 +321,7 @@ function updateClearActions() {
 
 function showStageOneClearEffect() {
   clearEffectEl.hidden = false;
+  if (mainEl) mainEl.inert = true;
   clearEffectEl.classList.remove("play");
   void clearEffectEl.offsetWidth;
   clearEffectEl.classList.add("play");
@@ -327,14 +329,15 @@ function showStageOneClearEffect() {
 
 function resetStageOneClearEffect() {
   clearEffectEl.hidden = true;
+  if (mainEl) mainEl.inert = false;
   clearEffectEl.classList.remove("play");
 }
 
 function resetForNewGrid() {
   grid = createEmptyGrid();
   pasteAreaEl.value = "";
-  pasteStatusEl.textContent = "";
-  missionStatusEl.textContent = "";
+  setStatus(pasteStatusEl, "");
+  setStatus(missionStatusEl, "");
   downloadStatusEl.textContent = "";
   isStageOneCleared = false;
   resetStageOneClearEffect();
@@ -381,13 +384,24 @@ function normalize(text) {
   return text.replace(/\r/g, "").trim();
 }
 
+function setStatus(el, text, tone = "") {
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove("is-success", "is-warning");
+  if (tone) el.classList.add(tone);
+}
+
 function updateStatuses() {
   const targetMatch = colorMode === MODE_PRACTICE && gridsMatch(grid, targetGrid);
   const pasteMatch = normalize(pasteAreaEl.value) === COPY_TEXT;
 
-  pasteStatusEl.textContent = pasteMatch
-    ? "貼り付け成功：指定された文と一致しています。"
-    : "貼り付け未完了：指定された文を Ctrl+V で貼り付けよう。";
+  setStatus(
+    pasteStatusEl,
+    pasteMatch
+      ? "ペースト成功：指定された文と一致しています。"
+      : "ペースト未完了：文を選んで Ctrl + C でコピーし、Ctrl + V でペーストしよう。",
+    pasteMatch ? "is-success" : "is-warning"
+  );
 
   if ((!targetMatch || !pasteMatch) && isStageOneCleared) {
     isStageOneCleared = false;
@@ -396,21 +410,29 @@ function updateStatuses() {
   }
 
   if (targetMatch && pasteMatch) {
-    missionStatusEl.textContent = "ミッション完了！ドット絵を完成させ、Ctrl+C / Ctrl+V もできました。";
+    setStatus(missionStatusEl, "ミッション完了！ドット絵を完成させ、コピー＆ペーストもできました。", "is-success");
     if (!isStageOneCleared) {
       isStageOneCleared = true;
       showStageOneClearEffect();
       updateClearActions();
     }
   } else if (targetMatch) {
-    missionStatusEl.textContent = "ドット絵は完成です。次は文を選んで Ctrl+C、下の箱に Ctrl+V で貼り付けよう。";
+    setStatus(missionStatusEl, "ドット絵は完成です。次は文を選んで Ctrl + C でコピーし、下の箱に Ctrl + V でペーストしよう。");
   } else if (pasteMatch) {
-    missionStatusEl.textContent = colorMode === MODE_ADVANCED
-      ? "コピー＆貼り付けは成功です。4色ドット絵を完成させたらスクリーンショット提出の練習に進もう。"
-      : "コピー＆貼り付けは成功です。次は見本に合わせてドット絵を完成させよう。";
+    setStatus(
+      missionStatusEl,
+      colorMode === MODE_ADVANCED
+        ? "コピー＆ペーストは成功です。4色ドット絵を完成させたらスクリーンショット提出の練習に進もう。"
+        : "コピー＆ペーストは成功です。次は見本に合わせてドット絵を完成させよう。",
+      "is-success"
+    );
   } else {
-    missionStatusEl.textContent = colorMode === MODE_ADVANCED
-      ? "パレットで4色を選び、ドット絵を完成させたらスクリーンショット提出の練習に進もう。"
-      : "1の場所を黒くぬり、文を Ctrl+C / Ctrl+V で貼り付けよう。";
+    setStatus(
+      missionStatusEl,
+      colorMode === MODE_ADVANCED
+        ? "パレットで4色を選び、ドット絵を描いてスクリーンショット提出の練習に進もう。"
+        : "1の場所を黒くぬり、文を選んで Ctrl + C でコピーし、Ctrl + V でペーストしよう。",
+      colorMode === MODE_ADVANCED ? "" : "is-warning"
+    );
   }
 }

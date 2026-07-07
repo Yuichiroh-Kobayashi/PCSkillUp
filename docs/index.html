@@ -46,51 +46,57 @@
     <p id="downloadStatus" class="status" aria-live="polite"></p>
 
     <section id="exercisePanel">
-      <h2 id="exerciseTitle">コピー＆貼り付け練習</h2>
-      <p id="exerciseDescription">下の文をドラッグして選び、Ctrl+C でコピーしよう。</p>
+      <h2 id="exerciseTitle">コピー＆ペースト練習</h2>
+      <p id="exerciseDescription"></p>
       <div id="copyPracticeControls">
         <div class="shortcut-guide">
           <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>C</kbd></div>
-          <p>下の文を選んで、Ctrl + C でコピーしよう</p>
+          <p>コピーする文をドラッグし、Ctrl + C でコピーしよう</p>
         </div>
-        <label for="copySource">コピーする文</label>
-        <textarea id="copySource" rows="2" readonly></textarea>
+        <div class="practice-field">
+          <label for="copySource">コピーする文</label>
+          <textarea id="copySource" rows="2" readonly></textarea>
+        </div>
         <div class="shortcut-guide">
           <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
-          <p>貼り付け欄をクリックして、Ctrl + V で貼り付けよう</p>
+          <p>ペースト欄をクリックして、Ctrl + V でペーストしよう</p>
         </div>
-        <label for="pasteArea">貼り付け欄</label>
-        <textarea id="pasteArea" rows="3"></textarea>
+        <div class="practice-field">
+          <label for="pasteArea">ペースト欄</label>
+          <textarea id="pasteArea" rows="3"></textarea>
+        </div>
       </div>
       <div id="screenshotNotice" hidden>
         <div class="shortcut-guide">
           <div class="key-combo" aria-hidden="true"><kbd>Win</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>S</kbd></div>
-          <p>Win + Shift + S を押して、提出したい作品の範囲をドラッグで囲もう</p>
+          <p>Win + Shift + S を押して、提出したい作品の範囲をドラッグして囲もう</p>
         </div>
         <div class="shortcut-guide">
           <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
-          <p>ロイロノートを開いたら、Ctrl + V で貼り付けよう</p>
+          <p>先生が指示するアプリを開いて、Ctrl + V でペーストしよう</p>
         </div>
-        <p><strong>注意：</strong>この授業では PrtScr キーは使いません。</p>
-        <p><strong>補足：</strong>本格的なスクリーンショット練習UIとロイロノート導線は後続PRで追加します。</p>
       </div>
       <p id="pasteStatus" class="status" aria-live="polite"></p>
       <p id="missionStatus" class="status strong" aria-live="polite"></p>
-      <div id="clearEffect" class="clear-effect" hidden aria-hidden="true">
-        <div class="clear-badge">CLEAR!</div>
-        <span class="confetti c1"></span>
-        <span class="confetti c2"></span>
-        <span class="confetti c3"></span>
-        <span class="confetti c4"></span>
-        <span class="confetti c5"></span>
-        <span class="confetti c6"></span>
-      </div>
+    </section>
+  </main>
+  <div id="clearEffect" class="clear-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+    <div class="clear-card">
+      <div class="clear-badge">CLEAR!</div>
+      <p id="clearTitle" class="clear-title">ミッション完了！</p>
+      <p>ドット絵を完成させ、コピー＆ペーストもできました。</p>
       <div id="clearActions" class="clear-actions" hidden>
         <button id="retryBtn" type="button">再チャレンジ</button>
         <button id="stage2Btn" type="button">ステージ2へ</button>
       </div>
-    </section>
-  </main>
+    </div>
+    <span class="confetti c1"></span>
+    <span class="confetti c2"></span>
+    <span class="confetti c3"></span>
+    <span class="confetti c4"></span>
+    <span class="confetti c5"></span>
+    <span class="confetti c6"></span>
+  </div>
   <script src="patterns.js"></script>
   <script src="bmp.js"></script>
   <script src="app.js"></script>
