@@ -32,7 +32,7 @@
     </section>
 
     <section class="buttons">
-      <button id="modeBtn" type="button">ステージ2へ進む</button>
+      <button id="modeBtn" type="button">ステージ1に戻る</button>
       <button id="clearBtn" type="button">全部消す</button>
       <button id="nextBtn" type="button">表示を変える</button>
       <button id="downloadBtn" type="button">今の絵をBMP保存</button>
@@ -49,9 +49,16 @@
       <h2 id="exerciseTitle">コピー＆貼り付け練習</h2>
       <p id="exerciseDescription">下の文をドラッグして選び、Ctrl+C でコピーしよう。</p>
       <div id="copyPracticeControls">
+        <div class="shortcut-guide" aria-label="コピーで使うキー">
+          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>C</kbd></div>
+          <p>下の文を選んで、Ctrl + C でコピーしよう</p>
+        </div>
         <label for="copySource">コピーする文</label>
         <textarea id="copySource" rows="2" readonly></textarea>
-        <p>コピーした文を下のテキストボックスに Ctrl+V で貼り付けよう。</p>
+        <div class="shortcut-guide" aria-label="貼り付けで使うキー">
+          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
+          <p>貼り付け欄をクリックして、Ctrl + V で貼り付けよう</p>
+        </div>
         <label for="pasteArea">貼り付け欄</label>
         <textarea id="pasteArea" rows="3"></textarea>
       </div>
@@ -61,6 +68,19 @@
       </div>
       <p id="pasteStatus" class="status" aria-live="polite"></p>
       <p id="missionStatus" class="status strong" aria-live="polite"></p>
+      <div id="clearEffect" class="clear-effect" hidden aria-hidden="true">
+        <div class="clear-badge">CLEAR!</div>
+        <span class="confetti c1"></span>
+        <span class="confetti c2"></span>
+        <span class="confetti c3"></span>
+        <span class="confetti c4"></span>
+        <span class="confetti c5"></span>
+        <span class="confetti c6"></span>
+      </div>
+      <div id="clearActions" class="clear-actions" hidden>
+        <button id="retryBtn" type="button">再チャレンジ</button>
+        <button id="stage2Btn" type="button">ステージ2へ</button>
+      </div>
     </section>
   </main>
   <script src="patterns.js"></script>
