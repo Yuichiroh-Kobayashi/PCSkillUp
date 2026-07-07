@@ -35,6 +35,7 @@ let editorCellElements = [];
 let isDragging = false;
 let dragPaintValue = 1;
 let selectedColor = 3;
+let isStageOneCleared = false;
 
 const targetGridEl = document.getElementById("targetGrid");
 const editGridEl = document.getElementById("editGrid");
@@ -55,9 +56,15 @@ const copyPracticeControlsEl = document.getElementById("copyPracticeControls");
 const screenshotNoticeEl = document.getElementById("screenshotNotice");
 const paletteEl = document.getElementById("palette");
 const swatchEls = Array.from(document.querySelectorAll(".swatch"));
+const clearEffectEl = document.getElementById("clearEffect");
+const clearActionsEl = document.getElementById("clearActions");
+const retryBtnEl = document.getElementById("retryBtn");
+const stage2BtnEl = document.getElementById("stage2Btn");
 
 copySourceEl.value = COPY_TEXT;
 modeBtnEl.addEventListener("click", toggleMode);
+retryBtnEl.addEventListener("click", retryStageOne);
+stage2BtnEl.addEventListener("click", goToStageTwo);
 downloadBtnEl.addEventListener("click", downloadBitmap);
 swatchEls.forEach((swatch) => swatch.addEventListener("click", selectColor));
 document.getElementById("clearBtn").addEventListener("click", clearAll);
@@ -222,11 +229,7 @@ function setCell(r, c, value) {
 }
 
 function clearAll() {
-  grid = createEmptyGrid();
-  pasteAreaEl.value = "";
-  pasteStatusEl.textContent = "";
-  missionStatusEl.textContent = "";
-  downloadStatusEl.textContent = "";
+  resetForNewGrid();
   renderEditorGrid();
   updateStatuses();
 }
@@ -257,8 +260,28 @@ function renderExercise() {
 }
 
 function toggleMode() {
-  colorMode = colorMode === MODE_PRACTICE ? MODE_ADVANCED : MODE_PRACTICE;
+  if (colorMode === MODE_PRACTICE) return;
+  colorMode = MODE_PRACTICE;
   patternIndex = getRandomStagePatternIndex();
+  selectedColor = 3;
+  resetForNewGrid();
+  updateStageControls();
+  renderAll();
+}
+
+function goToStageTwo() {
+  colorMode = MODE_ADVANCED;
+  patternIndex = getRandomStagePatternIndex();
+  selectedColor = 3;
+  resetForNewGrid();
+  updateStageControls();
+  renderAll();
+}
+
+function retryStageOne() {
+  const previousPatternIndex = patternIndex;
+  colorMode = MODE_PRACTICE;
+  patternIndex = getDifferentStagePatternIndex(previousPatternIndex);
   selectedColor = 3;
   resetForNewGrid();
   updateStageControls();
@@ -277,9 +300,34 @@ function getRandomStagePatternIndex() {
   return Math.floor(Math.random() * STAGE_PATTERN_COUNT);
 }
 
+function getDifferentStagePatternIndex(previousPatternIndex) {
+  const candidates = Array.from({ length: STAGE_PATTERN_COUNT }, (_, index) => index)
+    .filter((index) => index !== previousPatternIndex);
+  if (candidates.length === 0) return previousPatternIndex;
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
 function updateStageControls() {
-  modeBtnEl.textContent = colorMode === MODE_ADVANCED ? "ステージ1に戻る" : "ステージ2へ進む";
+  modeBtnEl.hidden = colorMode !== MODE_ADVANCED;
+  modeBtnEl.textContent = "ステージ1に戻る";
   downloadBtnEl.hidden = true;
+  updateClearActions();
+}
+
+function updateClearActions() {
+  clearActionsEl.hidden = colorMode !== MODE_PRACTICE || !isStageOneCleared;
+}
+
+function showStageOneClearEffect() {
+  clearEffectEl.hidden = false;
+  clearEffectEl.classList.remove("play");
+  void clearEffectEl.offsetWidth;
+  clearEffectEl.classList.add("play");
+}
+
+function resetStageOneClearEffect() {
+  clearEffectEl.hidden = true;
+  clearEffectEl.classList.remove("play");
 }
 
 function resetForNewGrid() {
@@ -288,6 +336,9 @@ function resetForNewGrid() {
   pasteStatusEl.textContent = "";
   missionStatusEl.textContent = "";
   downloadStatusEl.textContent = "";
+  isStageOneCleared = false;
+  resetStageOneClearEffect();
+  updateClearActions();
 }
 
 function downloadBitmap() {
@@ -338,8 +389,19 @@ function updateStatuses() {
     ? "貼り付け成功：指定された文と一致しています。"
     : "貼り付け未完了：指定された文を Ctrl+V で貼り付けよう。";
 
+  if ((!targetMatch || !pasteMatch) && isStageOneCleared) {
+    isStageOneCleared = false;
+    resetStageOneClearEffect();
+    updateClearActions();
+  }
+
   if (targetMatch && pasteMatch) {
     missionStatusEl.textContent = "ミッション完了！ドット絵を完成させ、Ctrl+C / Ctrl+V もできました。";
+    if (!isStageOneCleared) {
+      isStageOneCleared = true;
+      showStageOneClearEffect();
+      updateClearActions();
+    }
   } else if (targetMatch) {
     missionStatusEl.textContent = "ドット絵は完成です。次は文を選んで Ctrl+C、下の箱に Ctrl+V で貼り付けよう。";
   } else if (pasteMatch) {
