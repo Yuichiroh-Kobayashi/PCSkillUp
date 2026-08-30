@@ -20,6 +20,9 @@
   --color-data-ink-inverse: #ffffff;
   --color-data-hint: #a4130b;
 
+  --font-display: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas,
+    "Liberation Mono", "Noto Sans Mono", monospace;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -63,6 +66,11 @@
   --color-status-next-bg: #e4ecfb;
   --color-status-next-fg: #123a86;
   --color-status-next-border: #0b4bc7;
+
+  /* Dot art complete (stage 1 only; separate from CLEAR) */
+  --color-complete-border: #0f6b4c;
+  --color-complete-accent: #159468;
+  --color-complete-text: #0d4a33;
 
   /* Clear */
   --color-clear-bg: rgba(12, 18, 25, 0.62);
@@ -130,6 +138,11 @@
     --color-status-next-fg: #a8c9ff;
     --color-status-next-border: #8fbcff;
 
+    /* Dot art complete (stage 1 only; separate from CLEAR) */
+    --color-complete-border: #37c992;
+    --color-complete-accent: #6fe0b0;
+    --color-complete-text: #86e3ba;
+
     /* Clear */
     --color-clear-bg: rgba(3, 6, 10, 0.74);
     --color-clear-surface: #1f1a10;
@@ -195,6 +208,11 @@
   --color-status-next-bg: #16263f;
   --color-status-next-fg: #a8c9ff;
   --color-status-next-border: #8fbcff;
+
+  /* Dot art complete (stage 1 only; separate from CLEAR) */
+  --color-complete-border: #37c992;
+  --color-complete-accent: #6fe0b0;
+  --color-complete-text: #86e3ba;
 
   /* Clear */
   --color-clear-bg: rgba(3, 6, 10, 0.74);
@@ -300,26 +318,32 @@ h3 { font-size: 1.2rem; }
   padding: 16px;
   margin: 16px 0;
 }
-.stage-heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-}
-.stage-heading h2 { margin: 0; }
-.stage-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 2px solid var(--color-stage-accent);
-  background: var(--color-stage-accent);
-  color: var(--color-stage-accent-fg);
+.stage-kicker {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
   font-size: 0.95rem;
-  font-weight: bold;
-  letter-spacing: 0.06em;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }
-.stage-kicker { margin: 0 0 4px; font-weight: bold; color: var(--color-stage-accent); }
+.stage-title {
+  display: inline-block;
+  margin: 0;
+  padding: 8px 16px;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-stage-accent-fg);
+  background: var(--color-stage-accent);
+  border: 3px solid var(--color-stage-border);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--color-stage-border);
+}
 .stage-description {
   font-size: 1.25rem;
   font-weight: bold;
@@ -346,6 +370,63 @@ h3 { font-size: 1.2rem; }
   user-select: none;
   touch-action: none;
 }
+/* The frame reserves its padding at all times, so completing the dot art adds
+   no layout shift and nothing paints outside the frame box. */
+.grid-frame {
+  position: relative;
+  display: inline-block;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  isolation: isolate;
+  overflow: hidden;
+}
+.grid-frame .grid { position: relative; z-index: 1; }
+/* Fixed double frame: reads as complete without animation and without color. */
+.grid-frame.is-complete {
+  box-shadow:
+    inset 0 0 0 4px var(--color-complete-border),
+    inset 0 0 0 8px var(--color-page-bg),
+    inset 0 0 0 12px var(--color-complete-border);
+}
+/* A light travelling around the frame. The element is a square larger than the
+   frame's diagonal, so rotating it always covers the border band; the opaque grid
+   masks the centre and the frame's overflow clip keeps it from escaping. */
+.grid-frame.is-complete::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 165%;
+  aspect-ratio: 1;
+  z-index: 0;
+  transform: translate(-50%, -50%) rotate(0deg);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 58%,
+    var(--color-complete-accent) 78%,
+    transparent 92% 100%
+  );
+  opacity: 0;
+}
+.grid-frame.sweep::before { animation: completeSweep 1.8s linear 1 both; }
+.complete-label {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  margin: 12px 0 0;
+  padding: 6px 14px;
+  border: 3px solid var(--color-complete-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-complete-text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-variant-ligatures: none;
+  box-shadow: 3px 3px 0 var(--color-complete-border);
+}
+.complete-label[hidden] { display: none; }
+
 .practice-grid { grid-template-columns: 13px repeat(16, 26px); }
 .advanced-grid { grid-template-columns: repeat(33, 13px); gap: 1px; }
 .axis-label {
@@ -540,11 +621,12 @@ textarea {
 .key-combo { display: flex; align-items: center; flex-wrap: nowrap; gap: 10px; font-size: 1.4rem; font-weight: bold; }
 kbd {
   display: inline-flex;
-  min-width: 54px;
-  min-height: 44px;
+  box-sizing: border-box;
+  min-width: 56px;
+  height: 56px;
   align-items: center;
   justify-content: center;
-  padding: 4px 12px;
+  padding: 0 12px;
   border: 3px solid var(--color-key-border);
   border-bottom-width: 7px;
   border-radius: 10px;
@@ -554,6 +636,13 @@ kbd {
   font-family: inherit;
   font-size: 1.35rem;
 }
+/* Letter keys are square; modifiers widen the way they do on a real keyboard.
+   The Win key is the text "Win" only - never a Windows/Microsoft logo or window shape. */
+.key-letter { width: 56px; min-width: 56px; padding: 0; }
+.key-modifier { padding: 0 10px; }
+.key-win { width: 72px; min-width: 72px; }
+.key-ctrl { width: 88px; min-width: 88px; }
+.key-shift { width: 118px; min-width: 118px; }
 .shortcut-guide.key-intro { animation: keyIntro 620ms ease-out 1; }
 
 /* ==========================================================================
@@ -683,6 +772,12 @@ kbd {
   40% { box-shadow: 0 0 0 5px var(--color-effect-primary); transform: scale(1.02); }
   100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
 }
+@keyframes completeSweep {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); }
+  12% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(720deg); }
+}
 @keyframes stageSwap {
   0% { opacity: 0.35; transform: translateY(8px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -696,6 +791,16 @@ kbd {
   button, button:hover, button:active { transition: none; transform: none; }
   .shortcut-guide.key-intro { animation: keyIntroReduced 900ms ease-out 1; }
   .stage-swap { animation: none; }
+  /* No travelling light, but keep a static accent ring outside the double frame
+     so the same information survives without motion. */
+  .grid-frame.is-complete::before { display: none; }
+  .grid-frame.is-complete {
+    box-shadow:
+      inset 0 0 0 2px var(--color-complete-accent),
+      inset 0 0 0 6px var(--color-complete-border),
+      inset 0 0 0 10px var(--color-page-bg),
+      inset 0 0 0 14px var(--color-complete-border);
+  }
   .clear-overlay.play .clear-badge { animation: clearBadgeReduced 1.4s ease-out 1; }
   .clear-overlay.play .clear-card { animation: none; }
   .clear-overlay.play #clearActions button { animation: none; }

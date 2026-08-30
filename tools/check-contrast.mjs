@@ -110,7 +110,13 @@ const PAIRS = [
   ["stage accent text / surface", "--color-stage-accent", ["--color-surface"], 4.5, "text"],
   ["stage accent chip text / chip", "--color-stage-accent-fg", ["--color-stage-accent"], 4.5, "text"],
 
+  ["complete text / surface", "--color-complete-text", ["--color-surface"], 4.5, "text"],
+  ["complete text / page bg", "--color-complete-text", ["--color-page-bg"], 4.5, "text"],
+
   ["surface border / page bg", "--color-border", ["--color-page-bg"], 3, "ui"],
+  ["complete border / page bg", "--color-complete-border", ["--color-page-bg"], 3, "ui"],
+  ["complete border / surface", "--color-complete-border", ["--color-surface"], 3, "ui"],
+  ["complete accent / page bg", "--color-complete-accent", ["--color-page-bg"], 3, "ui"],
   ["stage board / page bg", "--color-stage-bg", ["--color-page-bg"], 3, "ui"],
   ["stage board / data black", "--color-stage-bg", ["--color-data-black"], 3, "ui"],
   ["stage board / data white", "--color-stage-bg", ["--color-data-white"], 3, "ui"],

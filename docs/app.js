@@ -1,6 +1,7 @@
 const COPY_TEXT = "ドット絵を完成させました";
 const DOWNLOAD_MESSAGE = "BMPを保存しました。ダウンロードフォルダを確認してください。";
 const DOWNLOAD_LOCK_MS = 1800;
+const DOT_ART_COMPLETE_TEXT = "✓ ドット絵 COMPLETE";
 const STAGE_PATTERN_COUNT = 3;
 const COLOR_COUNT = {
   [MODE_PRACTICE]: 2,
@@ -12,8 +13,7 @@ const THEME_LABELS = {
 };
 const STAGES = {
   [MODE_PRACTICE]: {
-    badge: "STAGE 1",
-    name: "ステージ1：ビットゲート",
+    name: "STAGE 1 : BIT GATE",
     description: "1の場所を黒くぬり、指定された文をコピー＆ペーストしよう！",
     instructions: [
       "16×16マスで『1』がある場所を黒くぬります。",
@@ -22,8 +22,7 @@ const STAGES = {
     ]
   },
   [MODE_ADVANCED]: {
-    badge: "STAGE 2",
-    name: "ステージ2：ピクセルキャプチャー",
+    name: "STAGE 2 : PIXEL CAPTURE",
     description: "4色ドット絵を作り、スクリーンショットを提出しよう！",
     instructions: [
       "32×32マスで『白色・銀色・灰色・黒色』を使ってドット絵を作ります。",
@@ -42,6 +41,7 @@ let isDragging = false;
 let dragPaintValue = 1;
 let selectedColor = 3;
 let isStageOneCleared = false;
+let isDotArtComplete = false;
 const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 let manualTheme = null;
 
@@ -49,7 +49,8 @@ const targetGridEl = document.getElementById("targetGrid");
 const mainEl = document.querySelector("main");
 const stagePanelEl = document.getElementById("modeInstructions");
 const gridsEl = document.querySelector(".grids");
-const stageBadgeEl = document.getElementById("stageBadge");
+const editGridFrameEl = document.getElementById("editGridFrame");
+const dotArtStatusEl = document.getElementById("dotArtStatus");
 const themeToggleEl = document.getElementById("themeToggle");
 const themeToggleLabelEl = document.getElementById("themeToggleLabel");
 const editGridEl = document.getElementById("editGrid");
@@ -122,6 +123,25 @@ function watchSystemColorScheme() {
   }
 }
 
+function renderDotArtComplete(isComplete) {
+  if (isComplete === isDotArtComplete) return;
+  isDotArtComplete = isComplete;
+  editGridFrameEl.classList.toggle("is-complete", isComplete);
+  dotArtStatusEl.hidden = !isComplete;
+  dotArtStatusEl.textContent = isComplete ? DOT_ART_COMPLETE_TEXT : "";
+  editGridFrameEl.classList.remove("sweep");
+  if (!isComplete) return;
+  void editGridFrameEl.offsetWidth;
+  editGridFrameEl.classList.add("sweep");
+}
+
+function resetDotArtComplete() {
+  isDotArtComplete = false;
+  editGridFrameEl.classList.remove("is-complete", "sweep");
+  dotArtStatusEl.hidden = true;
+  dotArtStatusEl.textContent = "";
+}
+
 function playStageTransition() {
   [stagePanelEl, gridsEl].forEach((el) => {
     if (!el) return;
@@ -175,7 +195,6 @@ function renderAll() {
 }
 
 function renderInstructions() {
-  stageBadgeEl.textContent = STAGES[colorMode].badge;
   stageNameEl.textContent = STAGES[colorMode].name;
   stageDescriptionEl.textContent = STAGES[colorMode].description;
   instructionListEl.innerHTML = "";
@@ -410,6 +429,7 @@ function resetForNewGrid() {
   setStatus(missionStatusEl, "");
   downloadStatusEl.textContent = "";
   isStageOneCleared = false;
+  resetDotArtComplete();
   resetStageOneClearEffect();
   updateClearActions();
 }
@@ -464,6 +484,8 @@ function setStatus(el, text, tone = "") {
 function updateStatuses() {
   const targetMatch = colorMode === MODE_PRACTICE && gridsMatch(grid, targetGrid);
   const pasteMatch = normalize(pasteAreaEl.value) === COPY_TEXT;
+
+  renderDotArtComplete(targetMatch);
 
   setStatus(
     pasteStatusEl,

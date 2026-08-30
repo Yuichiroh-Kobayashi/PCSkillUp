@@ -21,11 +21,8 @@
     </header>
 
     <section id="modeInstructions" class="stage-panel">
-      <p class="stage-kicker">現在のステージ</p>
-      <div class="stage-heading">
-        <span id="stageBadge" class="stage-badge"></span>
-        <h2 id="stageName"></h2>
-      </div>
+      <p class="stage-kicker" lang="en">CURRENT STAGE</p>
+      <h2 id="stageName" class="stage-title" lang="en"></h2>
       <p id="stageDescription" class="stage-description"></p>
       <h3>ルール</h3>
       <ul id="instructionList"></ul>
@@ -39,7 +36,10 @@
       </div>
       <div>
         <h2>作業グリッド（見本に合わせよう）</h2>
-        <div id="editGrid" class="grid" aria-label="作業用ドット絵"></div>
+        <div id="editGridFrame" class="grid-frame">
+          <div id="editGrid" class="grid" aria-label="作業用ドット絵"></div>
+        </div>
+        <p id="dotArtStatus" class="complete-label" hidden aria-live="polite"></p>
       </div>
     </section>
 
@@ -62,7 +62,7 @@
       <p id="exerciseDescription"></p>
       <div id="copyPracticeControls">
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>C</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-ctrl">Ctrl</kbd><span>+</span><kbd class="key-letter">C</kbd></div>
           <p>コピーする文をドラッグし、Ctrl + C でコピーしよう</p>
         </div>
         <div class="practice-field">
@@ -70,7 +70,7 @@
           <textarea id="copySource" rows="2" readonly></textarea>
         </div>
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-ctrl">Ctrl</kbd><span>+</span><kbd class="key-letter">V</kbd></div>
           <p>ペースト欄をクリックして、Ctrl + V でペーストしよう</p>
         </div>
         <div class="practice-field">
@@ -80,11 +80,11 @@
       </div>
       <div id="screenshotNotice" hidden>
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Win</kbd><span>+</span><kbd>⇧ Shift</kbd><span>+</span><kbd>S</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-win">Win</kbd><span>+</span><kbd class="key-modifier key-shift">⇧ Shift</kbd><span>+</span><kbd class="key-letter">S</kbd></div>
           <p>Win + Shift + S を押して、提出したい作品の範囲をドラッグして囲もう</p>
         </div>
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-ctrl">Ctrl</kbd><span>+</span><kbd class="key-letter">V</kbd></div>
           <p>先生が指示するアプリを開いて、Ctrl + V でペーストしよう</p>
         </div>
       </div>
