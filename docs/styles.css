@@ -23,6 +23,9 @@
   --font-display: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas,
     "Liberation Mono", "Noto Sans Mono", monospace;
 
+  /* Action buttons and the dot art complete badge share one height. */
+  --control-height: 52px;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -359,6 +362,15 @@ h3 { font-size: 1.2rem; }
    ========================================================================== */
 
 .grids { display: flex; flex-wrap: wrap; gap: 24px; }
+.grid-column { display: flex; flex-direction: column; align-items: flex-start; }
+/* Reserved in both columns, so the two grids stay level and the badge appearing
+   does not shift the layout. */
+.grid-footer {
+  display: flex;
+  align-items: flex-start;
+  min-height: var(--control-height);
+  margin-top: 16px;
+}
 .grids h2 { font-size: 1.25rem; }
 .grid {
   display: grid;
@@ -411,10 +423,12 @@ h3 { font-size: 1.2rem; }
 .grid-frame.sweep::before { animation: completeSweep 1.8s linear 1 both; }
 .complete-label {
   display: flex;
+  box-sizing: border-box;
   width: fit-content;
+  min-height: var(--control-height);
   align-items: center;
-  margin: 12px 0 0;
-  padding: 6px 14px;
+  margin: 0;
+  padding: 0 14px;
   border: 3px solid var(--color-complete-border);
   border-radius: 4px;
   background: var(--color-surface);
@@ -485,6 +499,8 @@ h3 { font-size: 1.2rem; }
 .swatch.shade-2, .swatch.shade-2:hover { background: var(--color-data-gray); color: var(--color-data-ink-inverse); }
 .swatch.shade-3, .swatch.shade-3:hover { background: var(--color-data-black); color: var(--color-data-ink-inverse); }
 .buttons { margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+/* Direct children only: the palette swatches keep their own size. */
+.buttons > button { min-height: var(--control-height); }
 button {
   padding: 12px 18px;
   font-weight: bold;

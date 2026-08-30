@@ -30,16 +30,21 @@
     </section>
 
     <section class="grids">
-      <div>
+      <div class="grid-column">
         <h2>見本（<span id="patternName"></span>）</h2>
-        <div id="targetGrid" class="grid" aria-label="見本のドット絵"></div>
+        <div id="targetGridFrame" class="grid-frame">
+          <div id="targetGrid" class="grid" aria-label="見本のドット絵"></div>
+        </div>
+        <div class="grid-footer"></div>
       </div>
-      <div>
+      <div class="grid-column">
         <h2>作業グリッド（見本に合わせよう）</h2>
         <div id="editGridFrame" class="grid-frame">
           <div id="editGrid" class="grid" aria-label="作業用ドット絵"></div>
         </div>
-        <p id="dotArtStatus" class="complete-label" hidden aria-live="polite"></p>
+        <div class="grid-footer">
+          <p id="dotArtStatus" class="complete-label" hidden aria-live="polite"></p>
+        </div>
       </div>
     </section>
 
