@@ -362,13 +362,18 @@ h3 { font-size: 1.2rem; }
    ========================================================================== */
 
 .grids { display: flex; flex-wrap: wrap; gap: 24px; }
-.grid-column { display: flex; flex-direction: column; align-items: flex-start; }
+.grid-column { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
 /* Reserved in both columns, so the two grids stay level and the badge appearing
    does not shift the layout. */
 .grid-footer {
+  position: absolute;
+  top: 100%;
+  left: 0;
   display: flex;
   align-items: flex-start;
   min-height: var(--control-height);
+  margin-top: 16px;
+  pointer-events: none;
 }
 .grids h2 { font-size: 1.25rem; }
 .grid {
@@ -497,7 +502,7 @@ h3 { font-size: 1.2rem; }
 .swatch.shade-1, .swatch.shade-1:hover { background: var(--color-data-silver); color: var(--color-data-ink); }
 .swatch.shade-2, .swatch.shade-2:hover { background: var(--color-data-gray); color: var(--color-data-ink-inverse); }
 .swatch.shade-3, .swatch.shade-3:hover { background: var(--color-data-black); color: var(--color-data-ink-inverse); }
-.buttons { margin: 0 0 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.buttons { margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 /* Direct children only: the palette swatches keep their own size. */
 .buttons > button { min-height: var(--control-height); }
 button {
@@ -834,6 +839,10 @@ kbd {
 @keyframes pixelStatic {
   0%, 100% { opacity: 0; transform: none; }
   20%, 80% { opacity: 1; transform: none; }
+}
+
+@media (max-width: 1080px) {
+  .grid-footer { position: static; pointer-events: auto; }
 }
 
 @media (max-width: 760px) {
