@@ -3,31 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>ドット絵データクエスト</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="container">
-    <h1>ドット絵データクエスト</h1>
-    <p class="lead">クリック・ドラッグ・コピー＆ペーストで、ドット絵をデータにしよう！</p>
+    <header class="app-header">
+      <div class="title-block">
+        <h1>ドット絵データクエスト</h1>
+        <p class="lead">クリック・ドラッグ・コピー＆ペーストで、ドット絵をデータにしよう！</p>
+      </div>
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="暗いモードにする">
+        <span class="theme-toggle-icon" aria-hidden="true"></span>
+        <span id="themeToggleLabel">暗いモードにする</span>
+      </button>
+    </header>
 
     <section id="modeInstructions" class="stage-panel">
-      <p class="stage-kicker">現在のステージ</p>
-      <h2 id="stageName"></h2>
+      <p class="stage-kicker" lang="en">CURRENT STAGE</p>
+      <h2 id="stageName" class="stage-title" lang="en"></h2>
       <p id="stageDescription" class="stage-description"></p>
       <h3>ルール</h3>
       <ul id="instructionList"></ul>
-      <p>少ない色でも、組み合わせると絵を表せます。</p>
+      <p class="stage-note">少ない色でも、組み合わせると絵を表せます。</p>
     </section>
 
     <section class="grids">
-      <div>
+      <div class="grid-column">
         <h2>見本（<span id="patternName"></span>）</h2>
-        <div id="targetGrid" class="grid" aria-label="見本のドット絵"></div>
+        <div id="targetGridFrame" class="grid-frame">
+          <div id="targetGrid" class="grid" aria-label="見本のドット絵"></div>
+        </div>
+        <div class="grid-footer"></div>
       </div>
-      <div>
+      <div class="grid-column">
         <h2>作業グリッド（見本に合わせよう）</h2>
-        <div id="editGrid" class="grid" aria-label="作業用ドット絵"></div>
+        <div id="editGridFrame" class="grid-frame">
+          <div id="editGrid" class="grid" aria-label="作業用ドット絵"></div>
+        </div>
+        <div class="grid-footer">
+          <p id="dotArtStatus" class="complete-label" hidden aria-live="polite"></p>
+        </div>
       </div>
     </section>
 
@@ -50,7 +67,7 @@
       <p id="exerciseDescription"></p>
       <div id="copyPracticeControls">
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>C</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-ctrl">Ctrl</kbd><span>+</span><kbd class="key-letter">C</kbd></div>
           <p>コピーする文をドラッグし、Ctrl + C でコピーしよう</p>
         </div>
         <div class="practice-field">
@@ -58,7 +75,7 @@
           <textarea id="copySource" rows="2" readonly></textarea>
         </div>
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-ctrl">Ctrl</kbd><span>+</span><kbd class="key-letter">V</kbd></div>
           <p>ペースト欄をクリックして、Ctrl + V でペーストしよう</p>
         </div>
         <div class="practice-field">
@@ -68,11 +85,11 @@
       </div>
       <div id="screenshotNotice" hidden>
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Win</kbd><span>+</span><kbd>⇧ Shift</kbd><span>+</span><kbd>S</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-win">Win</kbd><span>+</span><kbd class="key-modifier key-shift">⇧ Shift</kbd><span>+</span><kbd class="key-letter">S</kbd></div>
           <p>Win + Shift + S を押して、提出したい作品の範囲をドラッグして囲もう</p>
         </div>
         <div class="shortcut-guide">
-          <div class="key-combo" aria-hidden="true"><kbd>Ctrl</kbd><span>+</span><kbd>V</kbd></div>
+          <div class="key-combo" aria-hidden="true"><kbd class="key-modifier key-ctrl">Ctrl</kbd><span>+</span><kbd class="key-letter">V</kbd></div>
           <p>先生が指示するアプリを開いて、Ctrl + V でペーストしよう</p>
         </div>
       </div>
@@ -85,17 +102,24 @@
       <div class="clear-badge">CLEAR!</div>
       <p id="clearTitle" class="clear-title">ミッション完了！</p>
       <p>ドット絵を完成させ、コピー＆ペーストもできました。</p>
+      <ul class="clear-achievements">
+        <li>見本どおりにドット絵を完成</li>
+        <li>Ctrl + C で文をコピー</li>
+        <li>Ctrl + V でペースト</li>
+      </ul>
       <div id="clearActions" class="clear-actions" hidden>
         <button id="retryBtn" type="button">再チャレンジ</button>
         <button id="stage2Btn" type="button">ステージ2へ</button>
       </div>
     </div>
-    <span class="confetti c1"></span>
-    <span class="confetti c2"></span>
-    <span class="confetti c3"></span>
-    <span class="confetti c4"></span>
-    <span class="confetti c5"></span>
-    <span class="confetti c6"></span>
+    <span class="pixel p1"></span>
+    <span class="pixel p2"></span>
+    <span class="pixel p3"></span>
+    <span class="pixel p4"></span>
+    <span class="pixel p5"></span>
+    <span class="pixel p6"></span>
+    <span class="pixel p7"></span>
+    <span class="pixel p8"></span>
   </div>
   <script src="patterns.js"></script>
   <script src="bmp.js"></script>
