@@ -30,6 +30,30 @@
 - ただしBMP保存ボタンは現在のUIでは非表示を維持してください。
 - 上級モード/ステージ2のBMPは、Windows Paint互換性のため、原則として4bppインデックスBMPと16エントリのパレットを維持してください。変更する場合は理由を明記してください。
 
+## テーマ / 配色ルール
+
+- ライトとダークは同じsemantic role tokenを共有してください。値だけを変え、role名や意味をテーマごとに変えないでください。
+- ダークは単純な色反転にしないでください。背景に合わせて明度・彩度を調整し、意味は保ってください。
+- 教材データ色（白色・銀色・灰色・黒色）をテーマで変えないでください。`--color-data-*` は `@tokens:shared` に置き、テーマ側で上書きしないでください。
+- ドット絵のセル・パレットの色に、`--color-text` などのテーマ依存トークンを使わないでください。データ色の上にのる文字色は `--color-data-ink` / `--color-data-ink-inverse` / `--color-data-hint` を使ってください。
+- PATTERNSの数値、grid / targetGrid、BMP出力、1bpp / 4bpp、16エントリのパレット、ステージ判定をテーマの影響下に置かないでください。
+- テーマ変更はpresentation-onlyにしてください。current stage、patternIndex、grid、targetGrid、selectedColor、pasteArea、CLEAR状態、stage completion、BMPデータ、ユーザー入力をリセットしないでください。
+- テーマ変更でreload、ネットワークリクエスト、ステージのリセット、グリッドの再生成によるデータ消失を起こさないでください。
+- テーマの選択をlocalStorage / sessionStorage / Cookie / IndexedDBへ保存しないでください。
+- 起動時は `<html>` に `data-theme` を付けず、`@media (prefers-color-scheme: dark)` によりsystem preferenceへ追従させてください。
+- 手動切替は現在のページセッションのみ有効にしてください。切替時だけ `<html data-theme="light">` / `<html data-theme="dark">` を付与し、リロード後はsystem preferenceへ戻してください。
+- テーマ切替ボタンは、現在状態ではなく「次にできる操作」を示すvisible textにしてください（ライト時は `暗いモードにする`、ダーク時は `明るいモードにする`）。アイコンだけにせず、`aria-label` も同じ意味に保ってください。
+- ダークのtoken定義は `@media (prefers-color-scheme: dark)` 側と `:root[data-theme="dark"]` 側の2か所にあります。片方だけ変更しないでください。`node tools/check-contrast.mjs` が両者の一致を検査します。
+- 状態を色だけで伝えないでください。成功・未完了・次の操作・CLEARは、記号、文言、枠線の形／位置、色の組み合わせで示してください。
+- コントラストは、通常テキスト4.5:1以上、重要なUI境界・フォーカス・必要なgraphical object 3:1以上をtargetとし、ライト・ダーク双方で確認してください。可能なら余裕を持たせてください。
+- ライト・ダーク双方をグレースケールでも確認し、ステージ・成功・未完了・CLEAR・主/副ボタン・キー操作・フォーカスが判別できることを確かめてください。
+- エフェクト色もテーマのsemantic tokenを参照してください（`--color-effect-*`）。エフェクトは装飾的な手がかりであり、重要な状態の唯一の符号にしないでください。
+- `@media (prefers-reduced-motion: reduce)` を維持してください。移動・拡大は減らし、枠線・文字・色による強調は残し、情報量は減らさないでください。
+- エフェクトは授業の妨げにならない短時間のものに限定してください。BGM、効果音、大量の紙吹雪、常時動く背景、長時間アニメーション、強い点滅、外部animation libraryは使わないでください。
+- `color-scheme` を適切に設定し、textarea等のブラウザ標準UIがテーマと不整合にならないようにしてください。
+- README、画面、PR本文で「CUD認証済み」「CUD準拠」「WCAG準拠」「すべての色覚の利用者に識別可能」等は主張しないでください。「CUD / アクセシビリティに配慮した配色」「WCAG contrastを設計targetとして確認」等の表現を使ってください。
+- 他製品の具体的なHex値を無条件にコピーしないでください。
+
 ## キーボード表示ルール
 
 - キー操作は `<kbd>` を使ったキーキャップ表示を基本としてください。
@@ -78,6 +102,15 @@ git diff --check
 node --check docs/app.js
 node --check docs/patterns.js
 node --check docs/bmp.js
+node tools/check-contrast.mjs
+```
+
+`tools/check-contrast.mjs` は開発時のみのスクリプトです。アプリ本体（docs/）へ実行時の依存関係を追加しないでください。
+
+テーマ設定を誤って永続保存していないことも確認してください。
+
+```powershell
+rg -n 'localStorage|sessionStorage|document.cookie|indexedDB' docs
 ```
 
 HTMLコメントや不要なaria-label確認も必要に応じて行ってください。

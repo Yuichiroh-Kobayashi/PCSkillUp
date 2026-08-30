@@ -6,8 +6,13 @@ const COLOR_COUNT = {
   [MODE_PRACTICE]: 2,
   [MODE_ADVANCED]: 4
 };
+const THEME_LABELS = {
+  light: "暗いモードにする",
+  dark: "明るいモードにする"
+};
 const STAGES = {
   [MODE_PRACTICE]: {
+    badge: "STAGE 1",
     name: "ステージ1：ビットゲート",
     description: "1の場所を黒くぬり、指定された文をコピー＆ペーストしよう！",
     instructions: [
@@ -17,6 +22,7 @@ const STAGES = {
     ]
   },
   [MODE_ADVANCED]: {
+    badge: "STAGE 2",
     name: "ステージ2：ピクセルキャプチャー",
     description: "4色ドット絵を作り、スクリーンショットを提出しよう！",
     instructions: [
@@ -36,9 +42,16 @@ let isDragging = false;
 let dragPaintValue = 1;
 let selectedColor = 3;
 let isStageOneCleared = false;
+const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+let manualTheme = null;
 
 const targetGridEl = document.getElementById("targetGrid");
 const mainEl = document.querySelector("main");
+const stagePanelEl = document.getElementById("modeInstructions");
+const gridsEl = document.querySelector(".grids");
+const stageBadgeEl = document.getElementById("stageBadge");
+const themeToggleEl = document.getElementById("themeToggle");
+const themeToggleLabelEl = document.getElementById("themeToggleLabel");
 const editGridEl = document.getElementById("editGrid");
 const patternNameEl = document.getElementById("patternName");
 const stageNameEl = document.getElementById("stageName");
@@ -63,6 +76,7 @@ const retryBtnEl = document.getElementById("retryBtn");
 const stage2BtnEl = document.getElementById("stage2Btn");
 
 copySourceEl.value = COPY_TEXT;
+themeToggleEl.addEventListener("click", toggleTheme);
 modeBtnEl.addEventListener("click", toggleMode);
 retryBtnEl.addEventListener("click", retryStageOne);
 stage2BtnEl.addEventListener("click", goToStageTwo);
@@ -74,8 +88,59 @@ pasteAreaEl.addEventListener("input", updateStatuses);
 document.addEventListener("pointerup", endDrag);
 document.addEventListener("pointercancel", endDrag);
 
+renderThemeToggle();
+watchSystemColorScheme();
 updateStageControls();
 renderAll();
+
+function getActiveTheme() {
+  if (manualTheme) return manualTheme;
+  return darkSchemeQuery.matches ? "dark" : "light";
+}
+
+function renderThemeToggle() {
+  const label = THEME_LABELS[getActiveTheme()];
+  themeToggleLabelEl.textContent = label;
+  themeToggleEl.setAttribute("aria-label", label);
+}
+
+function toggleTheme() {
+  manualTheme = getActiveTheme() === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", manualTheme);
+  renderThemeToggle();
+}
+
+function watchSystemColorScheme() {
+  const onSchemeChange = () => {
+    if (manualTheme) return;
+    renderThemeToggle();
+  };
+  if (typeof darkSchemeQuery.addEventListener === "function") {
+    darkSchemeQuery.addEventListener("change", onSchemeChange);
+  } else if (typeof darkSchemeQuery.addListener === "function") {
+    darkSchemeQuery.addListener(onSchemeChange);
+  }
+}
+
+function playStageTransition() {
+  [stagePanelEl, gridsEl].forEach((el) => {
+    if (!el) return;
+    el.classList.remove("stage-swap");
+    void el.offsetWidth;
+    el.classList.add("stage-swap");
+  });
+}
+
+function markVisibleKeyHints() {
+  [copyPracticeControlsEl, screenshotNoticeEl].forEach((container) => {
+    if (!container || container.hidden) return;
+    container.querySelectorAll(".shortcut-guide").forEach((guide) => {
+      if (guide.dataset.introduced === "true") return;
+      guide.dataset.introduced = "true";
+      guide.classList.add("key-intro");
+    });
+  });
+}
 
 function getGridSize() {
   return colorMode === MODE_ADVANCED ? ADVANCED_SIZE : PRACTICE_SIZE;
@@ -110,6 +175,7 @@ function renderAll() {
 }
 
 function renderInstructions() {
+  stageBadgeEl.textContent = STAGES[colorMode].badge;
   stageNameEl.textContent = STAGES[colorMode].name;
   stageDescriptionEl.textContent = STAGES[colorMode].description;
   instructionListEl.innerHTML = "";
@@ -258,6 +324,7 @@ function renderExercise() {
   copyPracticeControlsEl.hidden = isAdvanced;
   screenshotNoticeEl.hidden = !isAdvanced;
   pasteStatusEl.hidden = isAdvanced;
+  markVisibleKeyHints();
 }
 
 function toggleMode() {
@@ -268,6 +335,7 @@ function toggleMode() {
   resetForNewGrid();
   updateStageControls();
   renderAll();
+  playStageTransition();
 }
 
 function goToStageTwo() {
@@ -277,6 +345,7 @@ function goToStageTwo() {
   resetForNewGrid();
   updateStageControls();
   renderAll();
+  playStageTransition();
 }
 
 function retryStageOne() {
@@ -287,6 +356,7 @@ function retryStageOne() {
   resetForNewGrid();
   updateStageControls();
   renderAll();
+  playStageTransition();
 }
 
 function nextPattern() {
@@ -387,7 +457,7 @@ function normalize(text) {
 function setStatus(el, text, tone = "") {
   if (!el) return;
   el.textContent = text;
-  el.classList.remove("is-success", "is-warning");
+  el.classList.remove("is-success", "is-warning", "is-next");
   if (tone) el.classList.add(tone);
 }
 
@@ -417,7 +487,11 @@ function updateStatuses() {
       updateClearActions();
     }
   } else if (targetMatch) {
-    setStatus(missionStatusEl, "ドット絵は完成です。次は文を選んで Ctrl + C でコピーし、下の箱に Ctrl + V でペーストしよう。");
+    setStatus(
+      missionStatusEl,
+      "ドット絵は完成です。次は文を選んで Ctrl + C でコピーし、下の箱に Ctrl + V でペーストしよう。",
+      "is-next"
+    );
   } else if (pasteMatch) {
     setStatus(
       missionStatusEl,
@@ -432,7 +506,7 @@ function updateStatuses() {
       colorMode === MODE_ADVANCED
         ? "パレットで4色を選び、ドット絵を描いてスクリーンショット提出の練習に進もう。"
         : "1の場所を黒くぬり、文を選んで Ctrl + C でコピーし、Ctrl + V でペーストしよう。",
-      colorMode === MODE_ADVANCED ? "" : "is-warning"
+      colorMode === MODE_ADVANCED ? "is-next" : "is-warning"
     );
   }
 }
